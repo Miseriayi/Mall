@@ -1,6 +1,7 @@
 package com.yola.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -33,13 +34,14 @@ public class CategoryController {
 
     /**
      * 列表
+     * 查询所有分类和子分类的树形结构
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/tree")
     //@RequiresPermissions("product:category:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
+    public R list(){
 
-        return R.ok().put("page", page);
+        List<CategoryEntity> entities = categoryService.treeList();
+        return R.ok().put("tree",entities);
     }
 
 
@@ -51,7 +53,7 @@ public class CategoryController {
     public R info(@PathVariable("catId") Long catId){
 		CategoryEntity category = categoryService.getById(catId);
 
-        return R.ok().put("category", category);
+        return R.ok().put("data", category);
     }
 
     /**
@@ -82,8 +84,9 @@ public class CategoryController {
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
-
+		//categoryService.removeByIds(Arrays.asList(catIds));
+        // 写上自己的删除功能
+        categoryService.deleteByIds(catIds);
         return R.ok();
     }
 

@@ -1,0 +1,42 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: baidu
+          uri: https://www.baidu.com
+          predicates:
+            - Query=url,baidu
+        - id: qq
+          uri: https://www.qq.com
+          predicates:
+            - Query=url,qq
+
+        # 转发给商品服务的路由，必须放在前面，因为会被后台的路由包括
+        # http://localhost:88/api/product/category/list/tree --> http://localhost:8000/product/category/list/tree
+        - id: product_route
+          uri: lb://mall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+        # localhost:88/api/thirdparty/oss/policy --> localhost:30000/oss/policy
+        - id: thirdparty_route
+          uri: lb://mall-thirdparty
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*), /$\{segment}
+
+
+#把网关发来的登录等请求转发到后台服务
+        #http://localhost:88/api/captcha.jpg --> http://localhost:8080/renrenfast/captcha.jpg
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+
+
+
