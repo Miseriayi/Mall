@@ -26,3 +26,6 @@ mybatis-plus:
       logic-not-delete-value: 1
 server:
   port: 8000
+logging:
+  level:
+    com.yola.mall: debug

@@ -1,15 +1,14 @@
 package com.yola.mall.product.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.yola.mall.product.entity.CategoryBrandRelationEntity;
 import com.yola.mall.product.service.CategoryBrandRelationService;
@@ -42,6 +41,14 @@ public class CategoryBrandRelationController {
         return R.ok().put("page", page);
     }
 
+    // 用品牌id去查关联表，得到所有所属的分类list
+    @GetMapping("/catelog/list")
+    //@RequiresPermissions("product:categorybrandrelation:list")
+    public R Cateloglist( @RequestParam("brandId") Long brandId){
+        List<CategoryBrandRelationEntity> list = categoryBrandRelationService.list(
+                new QueryWrapper<CategoryBrandRelationEntity>().eq("brand_id", brandId));
+        return R.ok().put("data",list);
+    }
 
     /**
      * 信息
@@ -56,12 +63,13 @@ public class CategoryBrandRelationController {
 
     /**
      * 保存
+     *  新增数据需要传入的数据是： 品牌id： brand_id; 分类id：catelog_id
      */
-    @RequestMapping("/save")
+    @PostMapping(value = "/save" )
     //@RequiresPermissions("product:categorybrandrelation:save")
     public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation){
-		categoryBrandRelationService.save(categoryBrandRelation);
-
+        // 先通过id拿到名字，再保存,自创一个saveDetails方法。
+        categoryBrandRelationService.saveDetails(categoryBrandRelation);
         return R.ok();
     }
 

@@ -1,5 +1,8 @@
 package com.yola.mall.product.service.impl;
 
+import com.mysql.cj.util.StringUtils;
+import com.yola.mall.product.service.CategoryBrandRelationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,11 +19,15 @@ import com.yola.common.utils.Query;
 import com.yola.mall.product.dao.CategoryDao;
 import com.yola.mall.product.entity.CategoryEntity;
 import com.yola.mall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+
+    @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
@@ -59,6 +66,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void deleteByIds(Long[] catIds) {
         //TODO 我们要的是逻辑删除。
         baseMapper.deleteBatchIds(Arrays.asList(catIds));
+    }
+
+
+    // 该方法同步更新品牌分类关系表中的数据
+    @Transactional
+    @Override
+    public void updateCascade(CategoryEntity category) {
+           this.updateById(category);
+           // 先更新了自己的字段，再检查分类名是否改变，若改变了就调用category and brand的服务
+            if(!StringUtils.isEmptyOrWhitespaceOnly(category.getName())){
+                    categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+            }
     }
 
     //该方法返回当前菜单的子菜单

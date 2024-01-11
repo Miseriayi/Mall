@@ -34,6 +34,7 @@ public class AttrGroupController {
     /**
      * 列表
      */
+    // 获取属性分组的信息
     @RequestMapping("/list")
     //@RequiresPermissions("product:attrgroup:list")
     public R list(@RequestParam Map<String, Object> params){
@@ -42,6 +43,14 @@ public class AttrGroupController {
         return R.ok().put("page", page);
     }
 
+    @RequestMapping("/list/{category_id}")
+    //@RequiresPermissions("product:attrgroup:list")
+    public R listByCategoryId(@RequestParam Map<String, Object> params,
+                              @PathVariable("category_id") Long cate_id){
+        PageUtils page = attrGroupService.queryPage(params, cate_id);
+
+        return R.ok().put("page", page);
+    }
 
     /**
      * 信息
